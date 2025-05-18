@@ -1,0 +1,32 @@
+name: height_weight_app
+description: A Flutter application for capturing images and estimating height and weight.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.5
+  camera: ^0.10.5+2
+  path_provider: ^2.0.15
+  http: ^1.1.0
+  http_parser: ^4.0.2
+  image_picker: ^1.0.1
+  provider: ^6.0.5
+  shared_preferences: ^2.2.0
+  flutter_spinkit: ^5.2.0
+  permission_handler: ^10.4.3
+  path: ^1.8.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/ 

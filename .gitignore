@@ -1,0 +1,25 @@
+# Common patterns
+.DS_Store
+.env
+*.log
+*.bak
+
+# Go patterns
+/height-weight-api/uploads/
+/height-weight-api/*.exe
+
+# Flutter patterns
+/height_weight_app/.dart_tool/
+/height_weight_app/.flutter-plugins
+/height_weight_app/.flutter-plugins-dependencies
+/height_weight_app/build/
+/height_weight_app/.idea/
+/height_weight_app/android/local.properties
+/height_weight_app/ios/Flutter/Generated.xcconfig
+/height_weight_app/ios/Flutter/flutter_export_environment.sh
+
+# Python patterns
+/model/__pycache__/
+/model/venv/
+/model/venv/**
+/model/*.pyc
