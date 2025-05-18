@@ -9,6 +9,7 @@ import '../services/api_service.dart';
 import '../utils/constants.dart';
 import '../widgets/result_display.dart';
 import 'camera_screen.dart';
+import 'training_data_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -215,6 +216,19 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Weight Estimator'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.science),
+            tooltip: 'Contribute Training Data',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const TrainingDataScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(Constants.defaultPadding),

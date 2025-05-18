@@ -22,6 +22,11 @@ func SetupRouter(cfg *config.Config) http.Handler {
 	// New weight estimation endpoint using front image, side image, and height
 	apiRouter.HandleFunc("/estimate-weight", handlers.EstimateWeight).Methods(http.MethodPost)
 
+	// Training data endpoints
+	apiRouter.HandleFunc("/save-training-data", handlers.SaveTrainingData).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/training-data", handlers.GetTrainingData).Methods(http.MethodGet)
+	apiRouter.HandleFunc("/export-training-data", handlers.ExportTrainingData).Methods(http.MethodGet)
+
 	// Legacy endpoints
 	apiRouter.HandleFunc("/upload", handlers.NewImageUploadHandler(cfg)).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/estimate/{imageID}", handlers.GetEstimationHandler).Methods(http.MethodGet)

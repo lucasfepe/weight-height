@@ -271,29 +271,140 @@ class ApiService {
   }
 
   // Weight prediction for web platforms
-  // Add these in predictWeightWeb method:
-Future<WeightResult> predictWeightWeb(Uint8List frontImageBytes, Uint8List sideImageBytes, double height) async {
-  print("🌐 predictWeightWeb called with:");
-  print("  - frontImageBytes: ${frontImageBytes.length} bytes");
-  print("  - sideImageBytes: ${sideImageBytes.length} bytes");
-  print("  - height: $height cm");
-  
-  try {
-    final response = await uploadImagesWeb(frontImageBytes, sideImageBytes, height);
+  Future<WeightResult> predictWeightWeb(Uint8List frontImageBytes, Uint8List sideImageBytes, double height) async {
+    print("🌐 predictWeightWeb called with:");
+    print("  - frontImageBytes: ${frontImageBytes.length} bytes");
+    print("  - sideImageBytes: ${sideImageBytes.length} bytes");
+    print("  - height: $height cm");
     
-    print("✅ API response received: success=${response.success}");
-    
-    if (response.success && response.data != null) {
-      final result = WeightResult.fromJson(response.data);
-      print("✅ Weight result: ${result.weight}kg");
-      return result;
+    try {
+      final response = await uploadImagesWeb(frontImageBytes, sideImageBytes, height);
+      
+      print("✅ API response received: success=${response.success}");
+      
+      if (response.success && response.data != null) {
+        final result = WeightResult.fromJson(response.data);
+        print("✅ Weight result: ${result.weight}kg");
+        return result;
+      }
+      
+      print("❌ API error: ${response.message}");
+      throw Exception(response.message ?? 'Failed to predict weight');
+    } catch (e) {
+      print("❌ Exception in predictWeightWeb: $e");
+      throw e;
     }
-    
-    print("❌ API error: ${response.message}");
-    throw Exception(response.message ?? 'Failed to predict weight');
-  } catch (e) {
-    print("❌ Exception in predictWeightWeb: $e");
-    throw e;
   }
-}
+  
+  // Save training data for mobile platforms (uses File)
+  Future<ApiResponse> saveTrainingData(File frontImage, File sideImage, double height, double actualWeight) async {
+    try {
+      // Create multipart request
+      final request = http.MultipartRequest('POST', Uri.parse('${Constants.apiBaseUrl}/save-training-data'));
+      
+      // Add the front image file
+      final frontFileStream = http.ByteStream(frontImage.openRead());
+      final frontFileLength = await frontImage.length();
+      
+      final frontMultipartFile = http.MultipartFile(
+        'front_image',
+        frontFileStream,
+        frontFileLength,
+        filename: 'front_image.jpg',
+      );
+      
+      // Add the side image file
+      final sideFileStream = http.ByteStream(sideImage.openRead());
+      final sideFileLength = await sideImage.length();
+      
+      final sideMultipartFile = http.MultipartFile(
+        'side_image',
+        sideFileStream,
+        sideFileLength,
+        filename: 'side_image.jpg',
+      );
+      
+      // Add values
+      request.fields['height'] = height.toString();
+      request.fields['actual_weight'] = actualWeight.toString();
+      
+      // Add both files to request
+      request.files.add(frontMultipartFile);
+      request.files.add(sideMultipartFile);
+      
+      // Send the request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      // Check if successful
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        return ApiResponse.fromJson(jsonResponse);
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Failed to process request. Status code: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error saving training data: $e');
+      return ApiResponse(
+        success: false,
+        message: 'Error saving training data: $e',
+      );
+    }
+  }
+  
+  // Save training data for web platforms (uses Uint8List)
+  Future<ApiResponse> saveTrainingDataWeb(Uint8List frontImageBytes, Uint8List sideImageBytes, double height, double actualWeight) async {
+    try {
+      // Create multipart request
+      final request = http.MultipartRequest('POST', Uri.parse('${Constants.apiBaseUrl}/save-training-data'));
+      
+      // Add the front image bytes
+      final frontMultipartFile = http.MultipartFile.fromBytes(
+        'front_image',
+        frontImageBytes,
+        filename: 'front_image.jpg',
+        contentType: MediaType('image', 'jpeg'),
+      );
+      
+      // Add the side image bytes
+      final sideMultipartFile = http.MultipartFile.fromBytes(
+        'side_image',
+        sideImageBytes,
+        filename: 'side_image.jpg',
+        contentType: MediaType('image', 'jpeg'),
+      );
+      
+      // Add values
+      request.fields['height'] = height.toString();
+      request.fields['actual_weight'] = actualWeight.toString();
+      
+      // Add both files to request
+      request.files.add(frontMultipartFile);
+      request.files.add(sideMultipartFile);
+      
+      // Send the request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      // Check if successful
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        return ApiResponse.fromJson(jsonResponse);
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Failed to process request. Status code: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error saving training data: $e');
+      return ApiResponse(
+        success: false,
+        message: 'Error saving training data: $e',
+      );
+    }
+  }
 }
